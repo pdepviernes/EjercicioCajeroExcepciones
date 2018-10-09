@@ -1,0 +1,76 @@
+import objects.*
+
+describe "Tests del Cajero" {
+
+	const pepe = new Persona(nombre = "Pepe")
+	const laura = new Persona(nombre = "Laura")
+	const pinValido = 1234
+	const pinErroneo = 1111
+
+	fixture {
+		cajero.registrarCuentaPara(pepe, pinValido)
+	}
+
+	test "El saldo inicial de Pepe es 0." {
+		assert.equals(0, cajero.consultarSaldoDe(pepe, pinValido))
+	}
+
+	test "Pepe consulta su saldo pero se olvidó el pin por lo que ingresa uno erróneo" {
+		assert.throwsExceptionWithMessage("PIN Incorrecto", { cajero.consultarSaldoDe(pepe, pinErroneo)})
+	}
+
+	test "Pepe deposita 100 pesos. Su saldo es 100." {
+		cajero.depositar(pepe, 100, pinValido)
+		assert.equals(100, cajero.consultarSaldoDe(pepe, pinValido))
+	}
+
+	test "Pepe quiere depositar con un pin erroneo" {
+		assert.throwsExceptionWithMessage("PIN Incorrecto", { cajero.depositar(pepe, 100, pinErroneo)})
+	}
+
+	test "Pepe deposita 100 pesos y retira 70. Su saldo es 30." {
+		cajero.depositar(pepe, 100, pinValido)
+		cajero.extraer(pepe, 70, pinValido)
+		assert.equals(30, cajero.consultarSaldoDe(pepe, pinValido))
+	}
+
+	test "Pepe quiere retirar plata sin antes depositar. Su saldo es insuficiente." {
+		assert.throwsExceptionWithMessage("Saldo Insuficiente", { cajero.extraer(pepe, 70, pinValido)})
+	}
+
+	test "Pepe deposita 100 pesos y quiere retirar 70 con un pin erroneo." {
+		cajero.depositar(pepe, 100, pinValido)
+		assert.throwsExceptionWithMessage("PIN Incorrecto", { cajero.extraer(pepe, 70, pinErroneo)})
+	}
+
+	test "Pepe deposita 100 pesos y le transfiere 60 a Laura que recien abrió su cuenta. El saldo de Pepe es 40 y el de Laura 60." {
+		var pinValidoDeLaura = 5353
+		cajero.registrarCuentaPara(laura, pinValidoDeLaura)
+		cajero.depositar(pepe, 100, pinValido)
+		cajero.transferir(pepe, 60, laura, pinValido)
+		assert.equals(40, cajero.consultarSaldoDe(pepe, pinValido))
+		assert.equals(60, cajero.consultarSaldoDe(laura, pinValidoDeLaura))
+	}
+	
+	test "Pepe deposita 100 pesos y le transfiere a Laura con un pin erroneo. PIN Incorrecto." {
+		var pinValidoDeLaura = 5353
+		cajero.registrarCuentaPara(laura, pinValidoDeLaura)
+		cajero.depositar(pepe, 100, pinValido)
+		assert.throwsExceptionWithMessage("PIN Incorrecto", {cajero.transferir(pepe, 60, laura, pinErroneo)})
+		
+	}
+	
+	test "Pepe depoista 100 pesos, retira 5, le transfiere a Laura 60, quien retira 40 y luego deposita 1000. El saldo de Pepe es 35 y el de laura 1020"{
+		var pinValidoDeLaura = 5353
+		cajero.registrarCuentaPara(laura, pinValidoDeLaura)
+		cajero.depositar(pepe, 100, pinValido)
+		cajero.extraer(pepe,5,pinValido)
+		cajero.transferir(pepe, 60, laura, pinValido)
+		cajero.extraer(laura,40,pinValidoDeLaura)
+		cajero.depositar(laura,1000,pinValidoDeLaura)
+		assert.equals(35, cajero.consultarSaldoDe(pepe, pinValido))
+		assert.equals(1020, cajero.consultarSaldoDe(laura, pinValidoDeLaura))
+	}
+
+}
+
