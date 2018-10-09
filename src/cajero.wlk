@@ -21,21 +21,25 @@ object cajero {
 	}
 	method cuatroElementos(pin){
 		if (pin.size()!=4)
-			throw new Exception("Elección inválida de PIN")
+			self.pinElegidoEsInvalido()
+	}
+	
+	method pinElegidoEsInvalido() {
+		throw new Exception("Elección inválida de PIN")
 	}
 	
 	method todosDigitos(pin){
 		if(!pin.all{d=>d>=0 && d<=9 && d.isInteger()})
-			throw new Exception("Elección inválida de PIN")
+			self.pinElegidoEsInvalido()
 	} 
 	method noTodosIguales(pin){
 		if(pin.all{d=>d==pin.first()})
-			throw new Exception("Elección inválida de PIN")
+			self.pinElegidoEsInvalido()
 	} 
 	method noSecuencia(pin){
 		if ((0..pin.size()-2).
 			all{pos=> pin.get(pos+1)==pin.get(pos)+1})
-				throw new Exception("Elección inválida de PIN")
+				self.pinElegidoEsInvalido()
 	} 
 	
 	method consultarSaldo(persona, pin) {
