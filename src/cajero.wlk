@@ -56,7 +56,7 @@ object cajero {
 	
 	method transferir(origen, monto, destino, pin){
 		self.extraer(origen, monto, pin)
-		self.cuentaDe(destino).depositar(monto)
+		self.depositar(destino,monto)
 	}	
 	
 	method cuentaDe(persona){
